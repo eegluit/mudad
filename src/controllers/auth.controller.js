@@ -1,11 +1,15 @@
+const newOtp = require('otp-generators');
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
-const { authService, userService, tokenService, emailService } = require('../services');
+const { authService, userService, tokenService, emailService, otpService } = require('../services');
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
   const tokens = await tokenService.generateAuthTokens(user);
-  res.status(httpStatus.CREATED).send({ user, tokens });
+  const otp = newOtp.generate(6, { alphabets: false, upperCase: false, specialChar: false });
+  const userId = user._id;
+  await otpService.generateOtp(otp, userId);
+  res.status(httpStatus.CREATED).send({ user, tokens, otp });
 });
 
 const login = catchAsync(async (req, res) => {
@@ -28,12 +32,14 @@ const refreshTokens = catchAsync(async (req, res) => {
 const forgotPassword = catchAsync(async (req, res) => {
   const resetPasswordToken = await tokenService.generateResetPasswordToken(req.body.email);
   await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken);
-  res.status(httpStatus.NO_CONTENT).send();
+  res.send({ message: 'Reset password link successfully sent to you email. Please check your email!' });
+  // res.status(httpStatus.NO_CONTENT).send();
 });
 
 const resetPassword = catchAsync(async (req, res) => {
   await authService.resetPassword(req.query.token, req.body.password);
-  res.status(httpStatus.NO_CONTENT).send();
+  res.send({ message: 'Password reset successfully' });
+  // res.status(httpStatus.NO_CONTENT).send();
 });
 
 const sendVerificationEmail = catchAsync(async (req, res) => {
@@ -47,6 +53,11 @@ const verifyEmail = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const verifyOtp = catchAsync(async (req, res) => {
+  const otp = await otpService.verifyOtp(req.body.otp, req.body.user);
+  if (otp.status === 'verified') res.send({ status: 200, message: 'Otp verified' });
+});
+
 module.exports = {
   register,
   login,
@@ -56,4 +67,5 @@ module.exports = {
   resetPassword,
   sendVerificationEmail,
   verifyEmail,
+  verifyOtp,
 };

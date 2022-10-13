@@ -5176,6 +5176,11 @@
     "type-check" "^0.4.0"
     "word-wrap" "^1.2.3"
 
+"otp-generators@^1.0.3":
+  "integrity" "sha512-DlOFQ1L6TbVs7TjFojNy+1PRx8H0CLM1H4t9stZacqJ1Cv9ZXWdYKM+NEcFCPGVlkU/z4PkUn4ZPU6bUZrGyNA=="
+  "resolved" "https://registry.npmjs.org/otp-generators/-/otp-generators-1.0.3.tgz"
+  "version" "1.0.3"
+
 "p-cancelable@^1.0.0":
   "integrity" "sha512-s73XxOZ4zpt1edZYZzvhqFa6uvQc1vwUa0K0BdtIZgQMAJj9IbebH+JkgKZc9h+B05PKHLOTl4ajG1BmNrVZlw=="
   "resolved" "https://registry.npmjs.org/p-cancelable/-/p-cancelable-1.1.0.tgz"
