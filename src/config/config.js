@@ -23,6 +23,9 @@ const envVarsSchema = Joi.object()
     SMTP_USERNAME: Joi.string().description('username for email server'),
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
+    JWT_VERIFY_GENERATE_OTP_MINUTES: Joi.number()
+    .default(10)
+    .description('minutes after which verify otp token expires'),
   })
   .unknown();
 
@@ -49,6 +52,7 @@ module.exports = {
     refreshExpirationDays: envVars.JWT_REFRESH_EXPIRATION_DAYS,
     resetPasswordExpirationMinutes: envVars.JWT_RESET_PASSWORD_EXPIRATION_MINUTES,
     verifyEmailExpirationMinutes: envVars.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
+    generateOtpMinutes: envVars.JWT_VERIFY_GENERATE_OTP_MINUTES
   },
   email: {
     smtp: {

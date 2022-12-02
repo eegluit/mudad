@@ -69,19 +69,19 @@ const generateAuthTokens = async (user) => {
   const accessTokenExpires = moment().add(config.jwt.accessExpirationMinutes, 'minutes');
   const accessToken = generateToken(user.id, accessTokenExpires, tokenTypes.ACCESS);
 
-  const refreshTokenExpires = moment().add(config.jwt.refreshExpirationDays, 'days');
-  const refreshToken = generateToken(user.id, refreshTokenExpires, tokenTypes.REFRESH);
-  await saveToken(refreshToken, user.id, refreshTokenExpires, tokenTypes.REFRESH);
+  // const refreshTokenExpires = moment().add(config.jwt.refreshExpirationDays, 'days');
+  // const refreshToken = generateToken(user.id, refreshTokenExpires, tokenTypes.REFRESH);
+  await saveToken(accessToken, user.id, accessTokenExpires, tokenTypes.ACCESS);
 
   return {
     access: {
       token: accessToken,
       expires: accessTokenExpires.toDate(),
     },
-    refresh: {
-      token: refreshToken,
-      expires: refreshTokenExpires.toDate(),
-    },
+    // refresh: {
+    //   token: refreshToken,
+    //   expires: refreshTokenExpires.toDate(),
+    // },
   };
 };
 
@@ -90,14 +90,10 @@ const generateAuthTokens = async (user) => {
  * @param {string} email
  * @returns {Promise<string>}
  */
-const generateResetPasswordToken = async (email) => {
-  const user = await userService.getUserByEmail(email);
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'No users found with this email');
-  }
+const generateResetPasswordToken = async (userId) => {
   const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
-  const resetPasswordToken = generateToken(user.id, expires, tokenTypes.RESET_PASSWORD);
-  await saveToken(resetPasswordToken, user.id, expires, tokenTypes.RESET_PASSWORD);
+  const resetPasswordToken = generateToken(userId, expires, tokenTypes.RESET_PASSWORD);
+  await saveToken(resetPasswordToken, userId, expires, tokenTypes.RESET_PASSWORD);
   return resetPasswordToken;
 };
 
@@ -113,6 +109,23 @@ const generateVerifyEmailToken = async (user) => {
   return verifyEmailToken;
 };
 
+const generateOtpToken = async (user) => {
+  const expires = moment().add(config.jwt.generateOtpMinutes, 'minutes');
+  const verifyOtpToken = generateToken(user.id, expires, tokenTypes.VERIFY_OTP);
+  await saveToken(verifyOtpToken, user.id, expires, tokenTypes.VERIFY_OTP);
+  return verifyOtpToken;
+};
+
+// const generateForgotPasswordToken = async (email) => {
+//   const user = await userService.getUserByEmail(email);
+//   if (!user) {
+//     throw new ApiError(httpStatus.NOT_FOUND, 'No users found with this email');
+//   }
+//   const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
+//   const resetPasswordToken = generateToken(user.id, expires, tokenTypes.FORGOT_PASSWORD);
+//   await saveToken(resetPasswordToken, user.id, expires, tokenTypes.FORGOT_PASSWORD);
+//   return resetPasswordToken;
+// }
 module.exports = {
   generateToken,
   saveToken,
@@ -120,4 +133,6 @@ module.exports = {
   generateAuthTokens,
   generateResetPasswordToken,
   generateVerifyEmailToken,
+  generateOtpToken,
+  // generateForgotPasswordToken
 };

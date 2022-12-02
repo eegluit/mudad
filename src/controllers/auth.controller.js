@@ -1,22 +1,28 @@
 const newOtp = require('otp-generators');
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
+const {tokenTypes} = require('../config/tokens');
 const { authService, userService, tokenService, emailService, otpService } = require('../services');
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
-  const tokens = await tokenService.generateAuthTokens(user);
-  const otp = newOtp.generate(6, { alphabets: false, upperCase: false, specialChar: false });
+  const otp = newOtp.generate(4, { alphabets: false, upperCase: false, specialChar: false });
   const userId = user._id;
-  await otpService.generateOtp(otp, userId);
-  res.status(httpStatus.CREATED).send({ user, tokens, otp });
+  let otpRes = await otpService.generateOtp(otp, userId);
+  await emailService.sendOtpEmail(req.body.email, otpRes.otp);
+  const tokens = await tokenService.generateOtpToken(user);
+  res.status(httpStatus.CREATED).send({ tokens, message: 'OTP has been sent on the email' });
 });
 
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
-  const tokens = await tokenService.generateAuthTokens(user);
-  res.send({ user, tokens });
+  const otp = newOtp.generate(4, { alphabets: false, upperCase: false, specialChar: false });
+  const userId = user._id;
+  const otpRes = await otpService.generateOtp(otp, userId);
+  await emailService.sendOtpEmail(req.body.email, otpRes.otp);
+  const tokens = await tokenService.generateOtpToken(user);
+  res.status(httpStatus.OK).send({ tokens, message: 'OTP has been sent on the email' });
 });
 
 const logout = catchAsync(async (req, res) => {
@@ -30,9 +36,14 @@ const refreshTokens = catchAsync(async (req, res) => {
 });
 
 const forgotPassword = catchAsync(async (req, res) => {
-  const resetPasswordToken = await tokenService.generateResetPasswordToken(req.body.email);
-  await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken);
-  res.send({ message: 'Reset password link successfully sent to you email. Please check your email!' });
+  const user = await userService.getUserByEmail(req.body.email);
+  const forgotPasswordToken = await tokenService.generateOtpToken(user);
+  const otp = newOtp.generate(4, { alphabets: false, upperCase: false, specialChar: false });
+  // const userId = user._id;
+  const otpRes = await otpService.generateOtp(otp, user._id);
+  await emailService.sendForgotOtpEmail(req.body.email, otpRes.otp);
+  // await emailService.sendResetPasswordEmail(req.body.email, forgotPasswordToken);
+  res.status(httpStatus.OK).send({ token: forgotPasswordToken, message : "Otp has been sent on your email" });
   // res.status(httpStatus.NO_CONTENT).send();
 });
 
@@ -54,8 +65,31 @@ const verifyEmail = catchAsync(async (req, res) => {
 });
 
 const verifyOtp = catchAsync(async (req, res) => {
-  const otp = await otpService.verifyOtp(req.body.otp, req.body.user);
-  if (otp.status === 'verified') res.send({ status: 200, message: 'Otp verified' });
+  const otpTokenDoc = await tokenService.verifyToken(req.query.token, tokenTypes.VERIFY_OTP);
+  const user = await userService.getUserById(otpTokenDoc.user);
+  const otp = await otpService.verifyOtp(req.body.otp, user);
+  const token = await tokenService.generateAuthTokens(user);
+  if(!user.isEmailVerified) {
+    const updateData = {
+      isEmailVerified : true
+    }
+    await userService.updateUserById(user._id, updateData)
+  }
+  await otpService.removeOtp(otp._id);
+  await otpTokenDoc.remove();
+  if (otp.status === 'verified')
+  res.status(httpStatus.OK).send({user, token});
+});
+
+const forgotVerifyOtp = catchAsync(async (req, res) => {
+  const otpTokenDoc = await tokenService.verifyToken(req.query.token, tokenTypes.VERIFY_OTP);
+  const user = await userService.getUserById(otpTokenDoc.user);
+  const otp = await otpService.verifyOtp(req.body.otp, user);
+  const token = await tokenService.generateResetPasswordToken(user._id);
+  await otpService.removeOtp(otp._id);
+  await otpTokenDoc.remove();
+  if (otp.status === 'verified')
+  res.status(httpStatus.OK).send({token, message : 'Otp verified successfully'});
 });
 
 module.exports = {
@@ -68,4 +102,5 @@ module.exports = {
   sendVerificationEmail,
   verifyEmail,
   verifyOtp,
+  forgotVerifyOtp
 };

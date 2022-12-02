@@ -32,10 +32,26 @@ const sendEmail = async (to, subject, text) => {
 const sendResetPasswordEmail = async (to, token) => {
   const subject = 'Reset password';
   // replace this url with the link to the reset password page of your front-end app
-  const resetPasswordUrl = `http://link-to-app/reset-password?token=${token}`;
+  const resetPasswordUrl = `http://mudad/reset-password?token=${token}`;
   const text = `Dear user,
 To reset your password, click on this link: ${resetPasswordUrl}
 If you did not request any password resets, then ignore this email.`;
+  await sendEmail(to, subject, text);
+};
+
+const sendOtpEmail = async (to, otp) => {
+  const subject = 'Login Otp';
+  const text = `Dear user,
+Your otp to login is : ${otp}
+If you did not request login, then ignore this email.`;
+  await sendEmail(to, subject, text);
+};
+
+const sendForgotOtpEmail = async (to, otp) => {
+  const subject = 'Reset Password Otp';
+  const text = `Dear user,
+Your otp for reset password is : ${otp}
+If you did not request to reset password, then ignore this email.`;
   await sendEmail(to, subject, text);
 };
 
@@ -60,4 +76,6 @@ module.exports = {
   sendEmail,
   sendResetPasswordEmail,
   sendVerificationEmail,
+  sendOtpEmail,
+  sendForgotOtpEmail
 };
