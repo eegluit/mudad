@@ -48,8 +48,12 @@ const forgotPassword = catchAsync(async (req, res) => {
 });
 
 const resetPassword = catchAsync(async (req, res) => {
-  await authService.resetPassword(req.query.token, req.body.password);
-  res.send({ message: 'Password reset successfully' });
+  try {
+    await authService.resetPassword(req.user, req.body.password);
+    res.status(httpStatus.OK).send({ message: 'Password reset successfully' });
+  } catch(err) {
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).send({message: 'Something went wrong'});
+  }
   // res.status(httpStatus.NO_CONTENT).send();
 });
 
@@ -65,31 +69,35 @@ const verifyEmail = catchAsync(async (req, res) => {
 });
 
 const verifyOtp = catchAsync(async (req, res) => {
-  const otpTokenDoc = await tokenService.verifyToken(req.query.token, tokenTypes.VERIFY_OTP);
-  const user = await userService.getUserById(otpTokenDoc.user);
-  const otp = await otpService.verifyOtp(req.body.otp, user);
-  const token = await tokenService.generateAuthTokens(user);
-  if(!user.isEmailVerified) {
-    const updateData = {
-      isEmailVerified : true
+  try {
+    const user = await userService.getUserById(req.user);
+    const otp = await otpService.verifyOtp(req.body.otp, user);
+    const token = await tokenService.generateAuthTokens(user);
+    if(!user.isEmailVerified) {
+      const updateData = {
+        isEmailVerified : true
+      }
+      await userService.updateUserById(user._id, updateData)
     }
-    await userService.updateUserById(user._id, updateData)
+    await otpService.removeOtp(otp._id);
+    if (otp.status === 'verified')
+    res.status(httpStatus.OK).send({user, token});
+  } catch(err) {
+    res.status(httpStatus.BAD_REQUEST).send({message: 'Invalid Otp'});
   }
-  await otpService.removeOtp(otp._id);
-  await otpTokenDoc.remove();
-  if (otp.status === 'verified')
-  res.status(httpStatus.OK).send({user, token});
 });
 
 const forgotVerifyOtp = catchAsync(async (req, res) => {
-  const otpTokenDoc = await tokenService.verifyToken(req.query.token, tokenTypes.VERIFY_OTP);
-  const user = await userService.getUserById(otpTokenDoc.user);
-  const otp = await otpService.verifyOtp(req.body.otp, user);
-  const token = await tokenService.generateResetPasswordToken(user._id);
-  await otpService.removeOtp(otp._id);
-  await otpTokenDoc.remove();
-  if (otp.status === 'verified')
-  res.status(httpStatus.OK).send({token, message : 'Otp verified successfully'});
+  try{
+    const user = await userService.getUserById(req.user);
+    const otp = await otpService.verifyOtp(req.body.otp, user);
+    const token = await tokenService.generateResetPasswordToken(user._id);
+    await otpService.removeOtp(otp._id);
+    if (otp.status === 'verified')
+    res.status(httpStatus.OK).send({token, message : 'Otp verified successfully'});
+  } catch(err) {
+    console.log(err);
+  }
 });
 
 module.exports = {

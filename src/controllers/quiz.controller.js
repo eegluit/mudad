@@ -6,7 +6,6 @@ const { tokenService, quizService } = require('../services');
 
 const addQuiz = catchAsync(async (req, res) => {
     try{
-        const tokenDoc = await tokenService.verifyToken(req.query.token, tokenTypes.ACCESS);
         let quizQueArr = req.body.quizData;
         let totalAns = 0;
         for(let data of quizQueArr) {
@@ -14,7 +13,7 @@ const addQuiz = catchAsync(async (req, res) => {
         }
         let quizAverage = Math.round(totalAns / (quizQueArr.length + 1));
         const quizData = {
-            user: tokenDoc.user,
+            user: req.user,
             quizData : req.body.quizData,
             quizAverage : quizAverage
         }

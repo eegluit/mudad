@@ -35,9 +35,6 @@ const forgotPassword = {
 };
 
 const resetPassword = {
-  query: Joi.object().keys({
-    token: Joi.string().required(),
-  }),
   body: Joi.object().keys({
     password: Joi.string().required().custom(password),
   }),
@@ -50,9 +47,6 @@ const verifyEmail = {
 };
 
 const verifyOtp = {
-  query: Joi.object().keys({
-    token: Joi.string().required(),
-  }),
   body: Joi.object().keys({
     otp: Joi.string().length(4).required(),
   }),

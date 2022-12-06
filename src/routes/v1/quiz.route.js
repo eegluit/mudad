@@ -6,7 +6,7 @@ const auth = require('../../middlewares/auth');
 
 const router = express.Router();
 
-router.post('/add-quiz', validate(quizValidation.addQuiz), quizController.addQuiz);
+router.post('/add-quiz', auth.authenticateUser, validate(quizValidation.addQuiz), quizController.addQuiz);
 
 
 module.exports = router;
