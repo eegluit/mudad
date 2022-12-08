@@ -1,9 +1,9 @@
 const passport = require('passport');
 const httpStatus = require('http-status');
+const jwt = require('jsonwebtoken');
 const ApiError = require('../utils/ApiError');
 const { roleRights } = require('../config/roles');
 const config = require('../config/config');
-const jwt = require('jsonwebtoken')
 
 const verifyCallback = (req, resolve, reject, requiredRights) => async (err, user, info) => {
   if (err || info || !user) {
@@ -22,28 +22,30 @@ const verifyCallback = (req, resolve, reject, requiredRights) => async (err, use
   resolve();
 };
 
-const auth = (...requiredRights) => async (req, res, next) => {
-  return new Promise((resolve, reject) => {
-    passport.authenticate('jwt', { session: false }, verifyCallback(req, resolve, reject, requiredRights))(req, res, next);
-  })
-    .then(() => next())
-    .catch((err) => next(err));
-};
+const auth =
+  (...requiredRights) =>
+  async (req, res, next) => {
+    return new Promise((resolve, reject) => {
+      passport.authenticate('jwt', { session: false }, verifyCallback(req, resolve, reject, requiredRights))(req, res, next);
+    })
+      .then(() => next())
+      .catch((err) => next(err));
+  };
 
 const authenticateUser = async (req, res, next) => {
   try {
-    const authHeader = req.headers['authentication'];
+    const authHeader = req.headers.authentication;
     const token = authHeader && authHeader.split(' ')[1];
-    if(token == null || !token) return res.status(httpStatus.UNAUTHORIZED).send({message : 'Unauthorised access'});
+    if (token == null || !token) return res.status(httpStatus.UNAUTHORIZED).send({ message: 'Unauthorised access' });
     const payload = jwt.verify(token, config.jwt.secret);
     req.user = payload.sub;
     next();
-  } catch(err) {
-    res.status(httpStatus.UNAUTHORIZED).send({message : 'Unauthorised access'});
+  } catch (err) {
+    res.status(httpStatus.UNAUTHORIZED).send({ message: 'Unauthorised access' });
   }
 };
 
 module.exports = {
   auth,
-  authenticateUser
+  authenticateUser,
 };

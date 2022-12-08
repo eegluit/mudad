@@ -77,5 +77,5 @@ module.exports = {
   sendResetPasswordEmail,
   sendVerificationEmail,
   sendOtpEmail,
-  sendForgotOtpEmail
+  sendForgotOtpEmail,
 };

@@ -60,5 +60,5 @@ module.exports = {
   forgotPassword,
   resetPassword,
   verifyEmail,
-  verifyOtp
+  verifyOtp,
 };

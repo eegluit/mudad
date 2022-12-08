@@ -4,7 +4,6 @@ const userService = require('./user.service');
 const Token = require('../models/token.model');
 const ApiError = require('../utils/ApiError');
 const { tokenTypes } = require('../config/tokens');
-const logger = require('../config/logger');
 
 /**
  * Login with username and password
@@ -16,7 +15,7 @@ const loginUserWithEmailAndPassword = async (email, password) => {
   const user = await userService.getUserByEmail(email);
   if (!user) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email');
-  } else if(!(await user.isPasswordMatch(password))) {
+  } else if (!(await user.isPasswordMatch(password))) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect Password');
   }
   return user;
@@ -67,7 +66,7 @@ const resetPassword = async (user, newPassword) => {
       throw new Error();
     }
     await userService.updateUserById(userData.id, { password: newPassword });
-    await Token.deleteMany({ user: user, type: tokenTypes.RESET_PASSWORD });
+    await Token.deleteMany({ user, type: tokenTypes.RESET_PASSWORD });
   } catch (error) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Password reset failed');
   }

@@ -17,7 +17,6 @@ router.post('/reset-password', auth.authenticateUser, validate(authValidation.re
 router.post('/verify-otp', auth.authenticateUser, validate(authValidation.verifyOtp), authController.verifyOtp);
 router.post('/verify-forgot-otp', auth.authenticateUser, validate(authValidation.verifyOtp), authController.forgotVerifyOtp);
 
-
 module.exports = router;
 
 /**

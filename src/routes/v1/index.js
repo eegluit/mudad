@@ -4,6 +4,7 @@ const userRoute = require('./user.route');
 const docsRoute = require('./docs.route');
 const quizRoute = require('./quiz.route');
 const config = require('../../config/config');
+const creditScoreRoute = require('./credit_score.route');
 
 const router = express.Router();
 
@@ -19,6 +20,10 @@ const defaultRoutes = [
   {
     path: '/quiz',
     route: quizRoute,
+  },
+  {
+    path: '/credit_score',
+    route: creditScoreRoute,
   },
 ];
 

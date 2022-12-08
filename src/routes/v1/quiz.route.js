@@ -8,5 +8,4 @@ const router = express.Router();
 
 router.post('/add-quiz', auth.authenticateUser, validate(quizValidation.addQuiz), quizController.addQuiz);
 
-
 module.exports = router;

@@ -6,6 +6,7 @@ const ApiError = require('../utils/ApiError');
  * Generate otp
  */
 const generateOtp = async (otp, user) => {
+  // eslint-disable-next-line no-return-await
   return await Otp.create({ otp, user });
 };
 
@@ -14,17 +15,17 @@ const verifyOtp = async (otp, user) => {
   if (userOtp != null) {
     // eslint-disable-next-line no-return-await
     return await Otp.findByIdAndUpdate(userOtp._id, { status: 'verified' }, { new: true });
-  } else {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid Otp');
   }
+  throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid Otp');
 };
 
 const removeOtp = async (otpId) => {
-  return await Otp.findOneAndRemove({_id: otpId});
-} 
+  // eslint-disable-next-line no-return-await
+  return await Otp.findOneAndRemove({ _id: otpId });
+};
 
 module.exports = {
   generateOtp,
   verifyOtp,
-  removeOtp
+  removeOtp,
 };
