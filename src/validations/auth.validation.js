@@ -18,7 +18,7 @@ const login = {
 
 const logout = {
   body: Joi.object().keys({
-    refreshToken: Joi.string().required(),
+    accessToken: Joi.string().required(),
   }),
 };
 
@@ -52,6 +52,12 @@ const verifyOtp = {
   }),
 };
 
+const verifyLogin = {
+  body: Joi.object().keys({
+    accessToken: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   register,
   login,
@@ -61,4 +67,5 @@ module.exports = {
   resetPassword,
   verifyEmail,
   verifyOtp,
+  verifyLogin
 };

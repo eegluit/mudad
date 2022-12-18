@@ -71,6 +71,14 @@ If you did not create an account, then ignore this email.`;
   await sendEmail(to, subject, text);
 };
 
+const sendCreditMail = async (to, creditScore) => {
+  const subject = 'Credit Score';
+  // replace this url with the link to the email verification page of your front-end app
+  const text = `Dear user,
+  On the assessment of your details, your credit score is ${creditScore}`;
+  await sendEmail(to, subject, text);
+};
+
 module.exports = {
   transport,
   sendEmail,
@@ -78,4 +86,5 @@ module.exports = {
   sendVerificationEmail,
   sendOtpEmail,
   sendForgotOtpEmail,
+  sendCreditMail
 };

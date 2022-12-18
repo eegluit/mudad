@@ -1,9 +1,8 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
-const { profileService, creditScoreService } = require('../services');
+const { profileService, creditScoreService, emailService, userService } = require('../services');
 
 const addProfile = catchAsync(async (req, res) => {
-  try {
     const isProfileExists = await profileService.getProfileById(req.user);
     if (isProfileExists) {
       await profileService.updateProfileById(req);
@@ -12,9 +11,6 @@ const addProfile = catchAsync(async (req, res) => {
       await profileService.addProfile(req);
       res.status(httpStatus.CREATED).send({ message: 'Profile added successfully' });
     }
-  } catch (err) {
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong' });
-  }
 });
 
 const uploadStatement = catchAsync(async (req, res) => {
@@ -26,12 +22,11 @@ const uploadStatement = catchAsync(async (req, res) => {
 });
 
 const getCreditScore = catchAsync(async (req, res) => {
-  try {
+  console.log('called', req.user);
     const creditScoreData = await creditScoreService.getCreditScoreByUserId(req.user);
-    res.status(200).send({ response: creditScoreData });
-  } catch (err) {
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong' });
-  }
+    const user = await userService.getUserById(req.user);
+    await emailService.sendCreditMail(user.email,creditScoreData.credit_score);
+    res.status(200).send({ message: 'Credit score sent on your mail.' });
 });
 
 module.exports = {

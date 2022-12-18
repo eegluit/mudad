@@ -16,7 +16,7 @@ const verifyOtp = async (otp, user) => {
     // eslint-disable-next-line no-return-await
     return await Otp.findByIdAndUpdate(userOtp._id, { status: 'verified' }, { new: true });
   }
-  throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid Otp');
+  throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid Otp');
 };
 
 const removeOtp = async (otpId) => {

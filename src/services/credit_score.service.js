@@ -2,6 +2,7 @@ const httpStatus = require('http-status');
 const pdfParse = require('pdf-parse');
 const fs = require('fs');
 const { CreditScore } = require('../models');
+const ApiError = require('../utils/ApiError');
 
 const readStatementPdf = async (req) => {
   try {
@@ -41,6 +42,7 @@ const readStatementPdf = async (req) => {
 
 const getCreditScoreByUserId = async (userId) => {
   const isCreditScore = await CreditScore.findOne({ userId });
+  if(!isCreditScore) throw new ApiError(httpStatus.NOT_FOUND, 'Credit score not found');
   return isCreditScore;
 };
 

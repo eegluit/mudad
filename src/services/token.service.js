@@ -1,8 +1,10 @@
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const httpStatus = require('http-status');
 const config = require('../config/config');
 const { Token } = require('../models');
 const { tokenTypes } = require('../config/tokens');
+const ApiError = require('../utils/ApiError');
 
 /**
  * Generate token
@@ -52,7 +54,7 @@ const verifyToken = async (token, type) => {
   const payload = jwt.verify(token, config.jwt.secret);
   const tokenDoc = await Token.findOne({ token, type, user: payload.sub, blacklisted: false });
   if (!tokenDoc) {
-    throw new Error('Token not found');
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized access');
   }
   return tokenDoc;
 };

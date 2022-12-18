@@ -26,12 +26,13 @@ const loginUserWithEmailAndPassword = async (email, password) => {
  * @param {string} refreshToken
  * @returns {Promise}
  */
-const logout = async (refreshToken) => {
-  const refreshTokenDoc = await Token.findOne({ token: refreshToken, type: tokenTypes.REFRESH, blacklisted: false });
-  if (!refreshTokenDoc) {
+const logout = async (accessToken) => {
+  const accessTokenDoc = await Token.findOne({ token: accessToken, type: tokenTypes.ACCESS, blacklisted: false });
+  if (!accessTokenDoc) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not found');
   }
-  await refreshTokenDoc.remove();
+  await accessTokenDoc.remove();
+  return;
 };
 
 /**

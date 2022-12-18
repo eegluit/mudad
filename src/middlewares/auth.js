@@ -41,7 +41,7 @@ const authenticateUser = async (req, res, next) => {
     req.user = payload.sub;
     next();
   } catch (err) {
-    res.status(httpStatus.UNAUTHORIZED).send({ message: 'Unauthorised access' });
+    res.status(httpStatus.UNAUTHORIZED).send({code :httpStatus.UNAUTHORIZED, message: 'Unauthorised access' });
   }
 };
 

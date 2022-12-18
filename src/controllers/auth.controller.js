@@ -2,6 +2,7 @@ const newOtp = require('otp-generators');
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { authService, userService, tokenService, emailService, otpService } = require('../services');
+const { tokenTypes } = require('../config/tokens');
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
@@ -25,8 +26,8 @@ const login = catchAsync(async (req, res) => {
 });
 
 const logout = catchAsync(async (req, res) => {
-  await authService.logout(req.body.refreshToken);
-  res.status(httpStatus.NO_CONTENT).send();
+  await authService.logout(req.body.accessToken);
+  res.status(httpStatus.OK).send({message: 'Logout successfully'});
 });
 
 const refreshTokens = catchAsync(async (req, res) => {
@@ -43,17 +44,11 @@ const forgotPassword = catchAsync(async (req, res) => {
   await emailService.sendForgotOtpEmail(req.body.email, otpRes.otp);
   // await emailService.sendResetPasswordEmail(req.body.email, forgotPasswordToken);
   res.status(httpStatus.OK).send({ token: forgotPasswordToken, message: 'Otp has been sent on your email' });
-  // res.status(httpStatus.NO_CONTENT).send();
 });
 
 const resetPassword = catchAsync(async (req, res) => {
-  try {
     await authService.resetPassword(req.user, req.body.password);
     res.status(httpStatus.OK).send({ message: 'Password reset successfully' });
-  } catch (err) {
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong' });
-  }
-  // res.status(httpStatus.NO_CONTENT).send();
 });
 
 const sendVerificationEmail = catchAsync(async (req, res) => {
@@ -68,7 +63,6 @@ const verifyEmail = catchAsync(async (req, res) => {
 });
 
 const verifyOtp = catchAsync(async (req, res) => {
-  try {
     const user = await userService.getUserById(req.user);
     const otp = await otpService.verifyOtp(req.body.otp, user);
     const token = await tokenService.generateAuthTokens(user);
@@ -80,21 +74,19 @@ const verifyOtp = catchAsync(async (req, res) => {
     }
     await otpService.removeOtp(otp._id);
     if (otp.status === 'verified') res.status(httpStatus.OK).send({ user, token });
-  } catch (err) {
-    res.status(httpStatus.BAD_REQUEST).send({ message: 'Invalid Otp' });
-  }
 });
 
 const forgotVerifyOtp = catchAsync(async (req, res) => {
-  try {
     const user = await userService.getUserById(req.user);
     const otp = await otpService.verifyOtp(req.body.otp, user);
     const token = await tokenService.generateResetPasswordToken(user._id);
     await otpService.removeOtp(otp._id);
     if (otp.status === 'verified') res.status(httpStatus.OK).send({ token, message: 'Otp verified successfully' });
-  } catch (err) {
-    res.status(httpStatus.BAD_REQUEST).send({ message: 'Invalid Otp' });
-  }
+});
+
+const verifyLogin = catchAsync(async (req, res) => {
+  await tokenService.verifyToken(req.body.accessToken, tokenTypes.ACCESS);
+  res.status(httpStatus.OK).send({message: 'User already logged in'});
 });
 
 module.exports = {
@@ -108,4 +100,5 @@ module.exports = {
   verifyEmail,
   verifyOtp,
   forgotVerifyOtp,
+  verifyLogin
 };
