@@ -2,6 +2,8 @@ const multer = require('multer');
 const fs = require('file-system');
 
 const uploadStatement = (req, res, cb) => {
+  console.log('req -------',req)
+  console.log('req file -------',req.file)
   const nameArray = [];
   const option = {
     path: 'public/docs/statement',
@@ -10,6 +12,7 @@ const uploadStatement = (req, res, cb) => {
     },
     // eslint-disable-next-line no-shadow
     filter: function fileFilter(req, file, cb) {
+      console.log('file ---', file)
       const type = file.mimetype.split('/');
       if (type[1] === 'pdf') {
         cb(null, true);

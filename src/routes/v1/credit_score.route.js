@@ -13,6 +13,11 @@ router.post(
   validate(creditScoreValidation.addProfile),
   creditScoreController.addProfile
 );
+router.get(
+  '/get-profile',
+  auth.authenticateUser,
+  creditScoreController.getProfile
+);
 router.post('/upload-statement', auth.authenticateUser, upload.uploadStatement, creditScoreController.uploadStatement);
 router.get('/get-credit-score', auth.authenticateUser, creditScoreController.getCreditScore);
 

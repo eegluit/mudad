@@ -6,6 +6,7 @@ const ApiError = require('../utils/ApiError');
 
 const readStatementPdf = async (req) => {
   try {
+    console.log(req.file)
     const pdfRead = `./public/docs/statement/${req.file.name}`;
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     const readFileSync = fs.readFileSync(pdfRead);
@@ -25,6 +26,7 @@ const readStatementPdf = async (req) => {
       };
       // eslint-disable-next-line no-use-before-define
       const isCreditExists = await getCreditScoreByUserId(req.user);
+      console.log('isCreditExists =========',isCreditExists)
       if (isCreditExists) {
         // eslint-disable-next-line no-use-before-define
         await updateCreditScoreByUserId(req.user, creditScoreData);
@@ -33,16 +35,18 @@ const readStatementPdf = async (req) => {
       await CreditScore.create(creditScoreData);
       return { message: 'Created' };
     } catch (error) {
-      throw new Error(error);
+      console.log('11111', error)
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong');
     }
   } catch (err) {
-    throw new Error(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong');
+    console.log('22222', err)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong');
   }
 };
 
 const getCreditScoreByUserId = async (userId) => {
   const isCreditScore = await CreditScore.findOne({ userId });
-  if(!isCreditScore) throw new ApiError(httpStatus.NOT_FOUND, 'Credit score not found');
+  // if(!isCreditScore) throw new ApiError(httpStatus.NOT_FOUND, 'Credit score not found');
   return isCreditScore;
 };
 
