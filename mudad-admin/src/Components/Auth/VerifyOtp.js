@@ -18,7 +18,7 @@ export const VerifyOtp = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const userInfo = useSelector((state) => state.userInfo);
-    const [timer, setTimer] = useState(5);
+    const [timer, setTimer] = useState(59);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [loadingOtpResend, setLoadingOtpResend] = useState(false);

@@ -36,7 +36,7 @@ const authenticateUser = async (req, res, next) => {
   try {
     const authHeader = req.headers.authentication;
     const token = authHeader && authHeader.split(' ')[1];
-    if (token == null || !token) return res.status(httpStatus.UNAUTHORIZED).send({ message: 'Unauthorised access' });
+    if (token == null || !token) return res.status(httpStatus.UNAUTHORIZED).send({ message: 'Please send access token' });
     const payload = jwt.verify(token, config.jwt.secret);
     req.user = payload.sub;
     next();

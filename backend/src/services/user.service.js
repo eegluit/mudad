@@ -75,11 +75,12 @@ const updateUserById = async (userId, updateBody) => {
  * @returns {Promise<User>}
  */
 const deleteUserById = async (userId) => {
-  const user = await getUserById(userId);
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-  }
-  await user.remove();
+  const userRes = await User.updateOne({_id: userId}, {$set : {isDeleted:true}});
+  return userRes;
+};
+
+const getAllUsers = async () => {
+  let user = await User.find({role: {$ne : 'admin'}, isDeleted:false});
   return user;
 };
 
@@ -90,4 +91,5 @@ module.exports = {
   getUserByEmail,
   updateUserById,
   deleteUserById,
+  getAllUsers
 };

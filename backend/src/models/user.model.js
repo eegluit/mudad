@@ -6,6 +6,10 @@ const { roles } = require('../config/roles');
 
 const userSchema = mongoose.Schema(
   {
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
     name: {
       type: String,
       required: true,
