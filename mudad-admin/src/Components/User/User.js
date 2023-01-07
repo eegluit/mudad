@@ -1,17 +1,30 @@
 import React, {useEffect, useState} from 'react';
 import {Row, Col, Card, Table} from 'react-bootstrap';
 import {getUsers, deleteUser} from "../../services/user";
-import { useSelector } from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import DataTable from "react-data-table-component";
 import {AiFillEdit} from "react-icons/ai"
 import {RiDeleteBin6Line} from "react-icons/ri"
+import { addProjectId } from "../../redux/reducers/userSlice";
+import { Button, Modal } from 'antd';
 
 export const User = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
     const [isLoading, setLoading] = useState(false);
     const userInfo = useSelector((state) => state.userInfo);
     const [data, setData] = useState([]);
+    const dispatch = useDispatch({});
     const [columns, setColumns] = useState([
-      { name: `Name`, selector: "name" },
+      { name: `Name`, selector: "name"},
       { name: `Role`, selector: "role" },
       { name: `Email`, selector: "email", width: "25%" },
       { name:  `Verified`, selector: "verified" },
@@ -32,6 +45,11 @@ export const User = () => {
     useEffect(() => {
         getUsersData();
     }, []);
+
+    const handleClick = async (id) => {
+      console.log(id);
+      await dispatch(addProjectId(id))
+    }
 
     const getUsersData = () => {
         const data = {
@@ -90,11 +108,21 @@ export const User = () => {
                     <Card.Title as="h5">Users</Card.Title>
                 </Card.Header>
                 <Card.Body>
-                    <DataTable 
+                <Button type="primary" onClick={showModal}>
+                  Open Modal
+                </Button>
+                <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                  <p>Some contents...</p>
+                  <p>Some contents...</p>
+                  <p>Some contents...</p>
+                </Modal>
+                    {/* <DataTable 
                         columns={columns}
                         data={data}
                         pagination
-                    />
+                        highlightOnHover={true}
+                        responsive={true}
+                    /> */}
                 </Card.Body>
             </Card>
         </Col>
