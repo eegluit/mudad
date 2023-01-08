@@ -33,6 +33,7 @@ export const Login = () => {
         onSubmit: (values) => {
           setLoading(true);
           console.log(values)
+          values.role = 'admin';
           login(values)
             .then(async (response) => {
               if(response.tokens) {

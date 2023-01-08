@@ -19,6 +19,9 @@ const kycSchema = mongoose.Schema(
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'Document'
     },
+    status : {
+      type : String
+    }
   },
   {
     timestamps: true,

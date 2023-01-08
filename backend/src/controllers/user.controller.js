@@ -13,8 +13,31 @@ const getUsers = catchAsync(async (req, res) => {
   // const filter = pick(req.query, ['name', 'role']);
   // const options = pick(req.query, ['sortBy', 'limit', 'page']);
   // const result = await userService.queryUsers(filter, options);
-  const user = await userService.getAllUsers();
-  res.status(httpStatus.OK).send({ user });
+  let userInfo = []
+  const userData = await userService.getAllUsers(req.body);
+  for await(const value of userData) {
+    const isKyc = await kycService.findByUserId(value.id);
+    const isStore = await storeService.findByUserId(value.id);
+    let kycStatus = 'Not completed by User';
+    if(isKyc) {
+      if(isKyc.status) {
+        kycStatus = isKyc.status;
+      }
+    }
+    const user = {
+      isDeleted: value.isDeleted,
+      role: value.role,
+      isEmailVerified: value.isEmailVerified,
+      name: value.name,
+      email: value.email,
+      id: value.id,
+      isKyc : isKyc ? isKyc.selfie ? true : false : false, 
+      kycStatus : kycStatus,
+      storeRegistered : isStore ? true : false
+    }
+    userInfo.push(user);
+  }
+  res.status(httpStatus.OK).send({ user : userInfo });
 });
 
 const getUser = catchAsync(async (req, res) => {

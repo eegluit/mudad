@@ -1,9 +1,42 @@
 import React from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import {FiUsers} from 'react-icons/fi';
 import {AiOutlinePoweroff} from 'react-icons/ai';
+import {useSelector} from "react-redux";
+import { logoutUser } from "../../services/auth";
 
 export const MainTemp = () => {
+  const navigate = useNavigate();
+  const userInfo = useSelector((state) => state.userInfo);
+
+  const handleLogOut = () => {
+    console.log('userInfo', userInfo)
+    const data = {
+      accessToken: userInfo.token.access.token,
+    };
+    logoutUser(data)
+      .then(async (response) => {
+        console.log(response);
+        if (response.message) {
+          navigate('/');
+        }
+        
+      })
+      .catch((error) => {
+        console.log('err', error);
+      });
+  }
+  const handleClick = (e) => {
+    // document.querySelectorAll('nav-link').classList.remove('active-link')
+    const elements = document.querySelectorAll('.nav-link');
+    console.log('called')
+    elements.forEach((element) => {
+      element.classList.remove('active');
+    });
+    let currentEl = e.currentTarget.firstChild.classList.add('active');
+    // console.log(currentEl)
+
+  }
   return (
     <>
       <div className="fullscreen">
@@ -20,17 +53,30 @@ export const MainTemp = () => {
             <div className="navbar-content datta-scroll">
               <div className="scrollbar-container ps ps--active-y">
                 <ul className="nav pcoded-inner-navbar">
-                  <li>
+                  <li onClick={handleClick}>
                     <Link
                       className="nav-link active"
                       target=""
-                      href="/datta-able/react/default/dashboard/default"
+                      to={'/user'}
                       aria-current="page"
                     >
                       <span className="pcoded-micon">
                         <i className="feather icon-home">{<FiUsers />}</i>
                       </span>
-                      <span className="pcoded-mtext">User</span>
+                      <span className="pcoded-mtext">Customer</span>
+                    </Link>
+                  </li>
+                  <li onClick={handleClick}>
+                    <Link
+                      className="nav-link"
+                      target=""
+                      to={'/merchant'}
+                      aria-current="page"
+                    >
+                      <span className="pcoded-micon">
+                        <i className="feather icon-home">{<FiUsers />}</i>
+                      </span>
+                      <span className="pcoded-mtext">Merchant</span>
                     </Link>
                   </li>
                 </ul>
@@ -43,8 +89,8 @@ export const MainTemp = () => {
         <div className="collapse navbar-collapse">
             <ul className="navbar-nav ml-auto">
                 <li className="m-l-15">
-                    <i className="icon feather icon-mail">
-                        <AiOutlinePoweroff />
+                    <i className="icon feather icon-mail logout-btn">
+                        <AiOutlinePoweroff onClick={handleLogOut}/>
                     </i>
                 </li>
             </ul>

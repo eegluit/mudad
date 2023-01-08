@@ -79,8 +79,8 @@ const deleteUserById = async (userId) => {
   return userRes;
 };
 
-const getAllUsers = async () => {
-  let user = await User.find({role: {$ne : 'admin'}, isDeleted:false});
+const getAllUsers = async (bodyData) => {
+  let user = await User.find({role: bodyData.role, isDeleted:false}).sort({_id:-1});
   return user;
 };
 

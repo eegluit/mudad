@@ -6,7 +6,7 @@ const auth = require('../../middlewares/auth');
 
 const router = express.Router();
 
-router.get('/get-users', auth.authenticateUser, userController.getUsers);
+router.post('/get-users', auth.authenticateUser, validate(userValidation.getUsers),userController.getUsers);
 router.post('/delete-user', auth.authenticateUser, validate(userValidation.deleteUser), userController.deleteUser);
 // router.post('/get-user-details', auth.authenticateUser, validate(userValidation.userDetails), userController.deleteUser);
 router.get('/get-user-personal-info', auth.authenticateUser, userController.getUserPersonalInfo);

@@ -31,18 +31,24 @@ const uploadSelfie = async (req) => {
         document : req.body.documentName
     }
     const uploadDocs = await Document.create(docsBody);
-    const kycUpdate = await Kyc.findOneAndUpdate({userId: req.user}, {$set: {selfie: uploadDocs._id}});
+    const kycUpdate = await Kyc.findOneAndUpdate({userId: req.user}, {$set: {selfie: uploadDocs._id, status : 'Completed by user'}});
     return {success: true, message: 'Kyc updated successfully'};
 };
 
 const findByUserId = async (userId) => {
-    const kycData = await Kyc.findOne({userId : userId}).populate('kycDoc').populate('selfie');
+    const kycData = await Kyc.findOne({userId : userId}).populate('kycDoc').populate('selfie').lean();
     return kycData;
+};
+
+const findByIdAndUpdate = async (id, status) => {
+  await Kyc.findOneAndUpdate({_id: id}, {$set: {status: status}});
+  return {success: true, message: 'Kyc updated successfully'};
 };
 
 module.exports = {
   addIdType,
   uploadKycDoc,
   uploadSelfie,
-  findByUserId
+  findByUserId,
+  findByIdAndUpdate
 };

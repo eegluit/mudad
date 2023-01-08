@@ -6,7 +6,7 @@ const getUsers = (data) => {
         headers : {authentication : `Bearer ${data.token.access.token}`}
     }
     return axios
-        .get(`${url}/users/get-users`, config)
+        .post(`${url}/users/get-users`, {role : data.role},config)
         .then(async (result) => { 
             return result.data;
     })
@@ -17,7 +17,6 @@ const getUsers = (data) => {
 
 
 const deleteUser = (data) => {
-    console.log('token ', data)
     const config = {
         headers : {authentication : `Bearer ${data.token.access.token}`}
     }
@@ -30,4 +29,35 @@ const deleteUser = (data) => {
           return error;
     });
 }
-export { getUsers, deleteUser };
+
+const userKycDetalis = (data) => {
+    console.log('token ', data)
+    const config = {
+        headers : {authentication : `Bearer ${data.token.access.token}`}
+    }
+    return axios
+        .post(`${url}/kyc/get-kyc-details`, {userId : data.userId}, config)
+        .then(async (result) => { 
+            return result.data;
+    })
+    .catch((error) => {
+          return error;
+    });
+}
+
+const kycVerified = (data) => {
+    console.log('token ', data)
+    const config = {
+        headers : {authentication : `Bearer ${data.token.access.token}`}
+    }
+    return axios
+        .post(`${url}/kyc/update-kyc-details`, {id : data.id, status : data.status}, config)
+        .then(async (result) => { 
+            return result.data;
+    })
+    .catch((error) => {
+          return error;
+    });
+}
+
+export { getUsers, deleteUser, userKycDetalis, kycVerified };

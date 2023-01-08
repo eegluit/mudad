@@ -29,8 +29,30 @@ const uploadSelfie = catchAsync(async (req, res) => {
   // }
 });
 
+const getKycDetails = catchAsync(async (req, res) => {
+  const kycData = await kycService.findByUserId(req.body.userId);
+  const kyc = {
+    id: kycData._id,
+    idType : kycData.kycIdType,
+    kycDoc : kycData.kycDoc ? `http://13.232.39.141:8080/static/docs/kyc/${kycData.kycDoc.document}` : null,
+    selfie : kycData.selfie ? `http://13.232.39.141:8080/static/docs/kyc/${kycData.selfie.document}` : null
+  }
+  res.status(httpStatus.OK).send({response : kyc})
+});
+
+const updateKycDetails = catchAsync(async (req, res) => {
+  const kycData = await kycService.findByIdAndUpdate(req.body.id, req.body.status);
+  let message = 'Kyc rejected successfully';
+  if(req.body.status == 'Verified') {
+    message = 'Kyc verified successfully';
+  }
+  res.status(httpStatus.OK).send({message})
+});
+
 module.exports = {
   addIdType,
   uploadKycDoc,
-  uploadSelfie
+  uploadSelfie,
+  getKycDetails,
+  updateKycDetails
 };

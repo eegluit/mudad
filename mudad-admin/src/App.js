@@ -13,6 +13,7 @@ import {ResetPassword} from './Components/Auth/ResetPassword';
 import {ForgotPassword} from './Components/Auth/ForgotPassword';
 import {User} from './Components/User/User';
 import { MainTemp } from './Components/Maintemp/MainTemp';
+import {Merchant} from './Components/User/Merchant';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route element={<AuthUser />}>
             <Route element={<MainTemp />}>
               <Route path="/user" element={<User />} />
+              <Route path="/merchant" element={<Merchant />} />
             </Route>
           </Route>
           {/* <Route path="/register" element={<Register />} />
@@ -42,7 +44,8 @@ function App() {
 
 const AuthUser = () => {
   const userInfo = useSelector((state) => state.userInfo);
-  return userInfo.token ? <Outlet /> : <Navigate to={"/"} />;
+  console.log(userInfo)
+  return userInfo.token.access ? <Outlet /> : <Navigate to={"/"} />;
 };
 
 export default App;

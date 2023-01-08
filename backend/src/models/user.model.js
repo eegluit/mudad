@@ -50,7 +50,7 @@ const userSchema = mongoose.Schema(
     },
     mobile: {
       type: String
-    },
+    }
   },
   {
     timestamps: true,

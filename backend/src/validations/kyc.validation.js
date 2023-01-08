@@ -7,6 +7,21 @@ const addIdType = {
   }),
 };
 
+const getKycDetails = {
+  body: Joi.object().keys({
+    userId: Joi.string().required(),
+  }),
+};
+
+const updateKycDetails = {
+  body: Joi.object().keys({
+    id: Joi.string().required(),
+    status: Joi.string().required()
+  }),
+};
+
 module.exports = {
   addIdType,
+  getKycDetails,
+  updateKycDetails
 };

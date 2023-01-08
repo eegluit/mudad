@@ -8,7 +8,7 @@ import { AiFillEdit } from "react-icons/ai";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { addProjectId } from "../../redux/reducers/userSlice";
 
-export const User = () => {
+export const Merchant = () => {
   const [isLoading, setLoading] = useState(false);
   const [popUpShow, setPopUpShow] = useState(false);
   const userInfo = useSelector((state) => state.userInfo);
@@ -42,6 +42,7 @@ export const User = () => {
         </>
       ),
     },
+    { name: `Store registered`, selector: "isStore", width: "13%" },
     {
       name: `Action`,
       cell: (row) => {
@@ -86,20 +87,21 @@ export const User = () => {
   const getUsersData = () => {
     const data = {
       token: userInfo.token,
-      role: "user",
+      role: "merchant",
     };
     getUsers(data)
       .then(async (response) => {
         if (response.user) {
           let userList = response.user.map((userData) => {
-            console.log(userData.isEmailVerified);
+            console.log(userData.isKyc);
             return {
               _id: userData.id,
               name: userData.name,
               email: userData.email,
               verified: userData.isEmailVerified.toString(),
-              isKyc: userData.kycStatus,
               role: userData.role,
+              isKyc: userData.kycStatus,
+              isStore: userData.storeRegistered.toString(),
             };
           });
           setData(userList);
@@ -112,8 +114,8 @@ export const User = () => {
       });
   };
 
-  const handleEdit = (id) => {
-    console.log(id);
+  const handleClose = () => {
+    setPopUpShow(false)
   };
 
   const handleDelete = (id) => {
@@ -133,7 +135,6 @@ export const User = () => {
         setLoading(false);
       });
   };
-
   const handleKycSubmit = (res) => {
     const data = {
         status : res,
@@ -153,16 +154,12 @@ export const User = () => {
             setLoading(false);
         });
   }
-
-  const handleClose = () => {
-    setPopUpShow(false)
-  };
   return (
     <Row>
       <Col>
         <Card>
           <Card.Header>
-            <Card.Title as="h5">Users</Card.Title>
+            <Card.Title as="h5">Merchant</Card.Title>
           </Card.Header>
           <Card.Body>
             <DataTable
