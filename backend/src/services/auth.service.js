@@ -4,6 +4,8 @@ const userService = require('./user.service');
 const Token = require('../models/token.model');
 const ApiError = require('../utils/ApiError');
 const { tokenTypes } = require('../config/tokens');
+const { User } = require('../models');
+const bcrypt = require('bcryptjs');
 
 /**
  * Login with username and password
@@ -92,10 +94,19 @@ const verifyEmail = async (verifyEmailToken) => {
   }
 };
 
+const changePassword = async (userId, bodyData) => {
+  if(bodyData.oldPassword == bodyData.newPassword) throw new ApiError(httpStatus.BAD_REQUEST, "Old password doesn't same as new password")
+  const user = await userService.getUserById(userId);
+  if(!await user.isPasswordMatch(bodyData.oldPassword)) throw new ApiError(httpStatus.BAD_REQUEST, 'Old password does not match')
+  await userService.updateUserById(userId, { password: bodyData.newPassword });
+  return;
+};
+
 module.exports = {
   loginUserWithEmailAndPassword,
   logout,
   refreshAuth,
   resetPassword,
   verifyEmail,
+  changePassword
 };

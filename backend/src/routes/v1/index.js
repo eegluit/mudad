@@ -5,6 +5,8 @@ const docsRoute = require('./docs.route');
 const quizRoute = require('./quiz.route');
 const config = require('../../config/config');
 const creditScoreRoute = require('./credit_score.route');
+const kycRoute = require('./kyc.route');
+const storeRoute = require('./store.route');
 
 const router = express.Router();
 
@@ -25,6 +27,14 @@ const defaultRoutes = [
     path: '/credit_score',
     route: creditScoreRoute,
   },
+  {
+    path: '/kyc',
+    route: kycRoute
+  },
+  {
+    path: '/store',
+    route: storeRoute
+  }
 ];
 
 const devRoutes = [

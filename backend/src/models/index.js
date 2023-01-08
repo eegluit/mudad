@@ -5,3 +5,6 @@ module.exports.Otp = require('./otp.model');
 module.exports.Quiz = require('./quiz.model');
 module.exports.Profile = require('./profile.model');
 module.exports.CreditScore = require('./credit_score');
+module.exports.Kyc = require('./kyc.model');
+module.exports.Document = require('./document.model');
+module.exports.Store = require('./store.model');

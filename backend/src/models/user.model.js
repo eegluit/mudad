@@ -41,12 +41,15 @@ const userSchema = mongoose.Schema(
     },
     role: {
       type: String,
-      enum: roles,
+      enum: ['user', 'admin', 'merchant'],
       default: 'user',
     },
     isEmailVerified: {
       type: Boolean,
       default: false,
+    },
+    mobile: {
+      type: String
     },
   },
   {

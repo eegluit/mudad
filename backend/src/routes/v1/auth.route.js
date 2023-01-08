@@ -18,6 +18,7 @@ router.post('/verify-otp', auth.authenticateUser, validate(authValidation.verify
 router.post('/verify-forgot-otp', auth.authenticateUser, validate(authValidation.verifyOtp), authController.forgotVerifyOtp);
 router.post('/verify-logged-in', validate(authValidation.verifyLogin), authController.verifyLogin);
 router.get('/resend-otp', auth.authenticateUser, authController.resendOtp);
+router.post('/change-password', auth.authenticateUser, validate(authValidation.changePassword), authController.changePassword);
 
 module.exports = router;
 

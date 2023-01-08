@@ -8,6 +8,10 @@ const router = express.Router();
 
 router.get('/get-users', auth.authenticateUser, userController.getUsers);
 router.post('/delete-user', auth.authenticateUser, validate(userValidation.deleteUser), userController.deleteUser);
+// router.post('/get-user-details', auth.authenticateUser, validate(userValidation.userDetails), userController.deleteUser);
+router.get('/get-user-personal-info', auth.authenticateUser, userController.getUserPersonalInfo);
+router.post('/update-user-personal-info', auth.authenticateUser, validate(userValidation.updateUserPersonalInfo), userController.updateUserPersonalInfo);
+router.get('/get-merchant-info', auth.authenticateUser, userController.getMerchantInfo);
 
 module.exports = router;
 

@@ -6,3 +6,5 @@ module.exports.otpService = require('./otp.service');
 module.exports.quizService = require('./quiz.service');
 module.exports.profileService = require('./profile.service');
 module.exports.creditScoreService = require('./credit_score.service');
+module.exports.kycService = require('./kyc.service');
+module.exports.storeService = require('./store.service');

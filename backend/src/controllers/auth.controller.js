@@ -1,7 +1,7 @@
 const newOtp = require('otp-generators');
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
-const { authService, userService, tokenService, emailService, otpService } = require('../services');
+const { authService, userService, tokenService, emailService, otpService, kycService, storeService } = require('../services');
 const { tokenTypes } = require('../config/tokens');
 
 const register = catchAsync(async (req, res) => {
@@ -17,12 +17,26 @@ const register = catchAsync(async (req, res) => {
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
-  const otp = newOtp.generate(4, { alphabets: false, upperCase: false, specialChar: false });
-  const userId = user._id;
-  const otpRes = await otpService.generateOtp(otp, userId);
-  await emailService.sendOtpEmail(req.body.email, otpRes.otp);
-  const tokens = await tokenService.generateOtpToken(user);
-  res.status(httpStatus.OK).send({ tokens, message: 'OTP has been sent on the email' });
+  console.log(user)
+  if(user.role == 'merchant' || user.role == 'admin') {
+    if(user.role == req.body.role) {
+      const otp = newOtp.generate(4, { alphabets: false, upperCase: false, specialChar: false });
+      const userId = user._id;
+      const otpRes = await otpService.generateOtp(otp, userId);
+      await emailService.sendOtpEmail(req.body.email, otpRes.otp);
+      const tokens = await tokenService.generateOtpToken(user);
+      res.status(httpStatus.OK).send({ tokens, message: 'OTP has been sent on the email' });
+    } else {
+      res.status(httpStatus.BAD_REQUEST).send({ message: 'You are not an merchant' });    
+    }
+  } else {
+    const otp = newOtp.generate(4, { alphabets: false, upperCase: false, specialChar: false });
+    const userId = user._id;
+    const otpRes = await otpService.generateOtp(otp, userId);
+    await emailService.sendOtpEmail(req.body.email, otpRes.otp);
+    const tokens = await tokenService.generateOtpToken(user);
+    res.status(httpStatus.OK).send({ tokens, message: 'OTP has been sent on the email' });  
+  }
 });
 
 const logout = catchAsync(async (req, res) => {
@@ -63,17 +77,31 @@ const verifyEmail = catchAsync(async (req, res) => {
 });
 
 const verifyOtp = catchAsync(async (req, res) => {
-    const user = await userService.getUserById(req.user);
-    const otp = await otpService.verifyOtp(req.body.otp, user);
-    const token = await tokenService.generateAuthTokens(user);
-    if (!user.isEmailVerified) {
+    const userData = await userService.getUserById(req.user);
+    const otp = await otpService.verifyOtp(req.body.otp, userData);
+    const token = await tokenService.generateAuthTokens(userData);
+    const isKyc = await kycService.findByUserId(req.user);
+    const isStore = await storeService.findByUserId(req.user);
+    if (!userData.isEmailVerified) {
       const updateData = {
         isEmailVerified: true,
       };
-      await userService.updateUserById(user._id, updateData);
+      await userService.updateUserById(userData._id, updateData);
     }
     await otpService.removeOtp(otp._id);
-    if (otp.status === 'verified') res.status(httpStatus.OK).send({ user, token });
+    if (otp.status === 'verified') {
+      const user = {
+        isDeleted: userData.isDeleted,
+        role: userData.role,
+        isEmailVerified: userData.isEmailVerified,
+        name: userData.name,
+        email: userData.email,
+        id: userData.id,
+        isKyc : isKyc ? isKyc.selfie ? true : false : false, 
+        storeRegistered : isStore ? true : false
+      }
+      res.status(httpStatus.OK).send({user, token});
+    }
 });
 
 const forgotVerifyOtp = catchAsync(async (req, res) => {
@@ -98,6 +126,11 @@ const resendOtp = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send({ message: 'Otp has been sent on your email' });
 });
 
+const changePassword = catchAsync(async (req, res) => {
+  await authService.changePassword(req.user, req.body);
+  res.status(httpStatus.OK).send({ message: 'Password reset successfully' });
+});
+
 module.exports = {
   register,
   login,
@@ -110,5 +143,6 @@ module.exports = {
   verifyOtp,
   forgotVerifyOtp,
   verifyLogin,
-  resendOtp
+  resendOtp,
+  changePassword
 };
