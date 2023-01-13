@@ -7,6 +7,8 @@ const config = require('../../config/config');
 const creditScoreRoute = require('./credit_score.route');
 const kycRoute = require('./kyc.route');
 const storeRoute = require('./store.route');
+const dashboardRoute = require('./dashboard.route');
+const cardRoute = require('./card.route');
 
 const router = express.Router();
 
@@ -34,6 +36,14 @@ const defaultRoutes = [
   {
     path: '/store',
     route: storeRoute
+  },
+  {
+    path: '/dashboard',
+    route: dashboardRoute
+  },
+  {
+    path: '/card',
+    route: cardRoute
   }
 ];
 

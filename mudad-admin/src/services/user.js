@@ -60,4 +60,19 @@ const kycVerified = (data) => {
     });
 }
 
-export { getUsers, deleteUser, userKycDetalis, kycVerified };
+const getUserDetails = (data) => {
+    console.log('token ', data)
+    const config = {
+        headers : {authentication : `Bearer ${data.token.access.token}`}
+    }
+    return axios
+        .post(`${url}/users/get-user-details`, {userId : data.userId}, config)
+        .then(async (result) => { 
+            return result.data;
+    })
+    .catch((error) => {
+          return error;
+    });
+}
+
+export { getUsers, deleteUser, userKycDetalis, kycVerified, getUserDetails };

@@ -2,7 +2,7 @@ const httpStatus = require('http-status');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
-const { userService, storeService, kycService } = require('../services');
+const { userService, storeService, kycService, creditScoreService, profileService } = require('../services');
 
 const createUser = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
@@ -16,6 +16,7 @@ const getUsers = catchAsync(async (req, res) => {
   let userInfo = []
   const userData = await userService.getAllUsers(req.body);
   for await(const value of userData) {
+    
     const isKyc = await kycService.findByUserId(value.id);
     const isStore = await storeService.findByUserId(value.id);
     let kycStatus = 'Not completed by User';
@@ -34,6 +35,10 @@ const getUsers = catchAsync(async (req, res) => {
       isKyc : isKyc ? isKyc.selfie ? true : false : false, 
       kycStatus : kycStatus,
       storeRegistered : isStore ? true : false
+    }
+    if(req.body.role == 'user') {
+      const isProfile = await profileService.getProfileById(value.id);
+      user.isProfile = isProfile ? true : false
     }
     userInfo.push(user);
   }
@@ -76,6 +81,9 @@ const getUserPersonalInfo = catchAsync(async (req, res) => {
     storeRegistered : isStore ? true : false
   }
   if(userData.mobile) user.mobile = userData.mobile;
+  if(userData.profile) {
+    user.profile = `https://admin.mudad.space/static/docs/profile/${userData.profile.document}`;
+  }
   res.status(httpStatus.OK).send(user);
 });
 
@@ -86,14 +94,23 @@ const updateUserPersonalInfo = catchAsync(async (req, res) => {
 
 const getMerchantInfo = catchAsync(async (req, res) => {
   const storeData = await storeService.findByUserId(req.user);
+  let store = {...storeData};
+  store.logo = `https://admin.mudad.space/static/docs/store/${storeData.logo.document}`
+  console.log('store',store);
   const kycData = await kycService.findByUserId(req.user);
   console.log(kycData)
   const kyc = {
     idType : kycData.kycIdType,
-    kycDoc : kycData.kycDoc ? `http://13.232.39.141:8080/static/docs/kyc/${kycData.kycDoc.document}` : null,
-    selfie : kycData.selfie ? `http://13.232.39.141:8080/static/docs/kyc/${kycData.selfie.document}` : null
+    kycDoc : kycData.kycDoc ? `https://admin.mudad.space/static/docs/kyc/${kycData.kycDoc.document}` : null,
+    selfie : kycData.selfie ? `https://admin.mudad.space/static/docs/kyc/${kycData.selfie.document}` : null
   }
-  res.status(httpStatus.OK).send({store : storeData, kyc});
+  res.status(httpStatus.OK).send({store : store, kyc});
+});
+
+const userDetails = catchAsync(async (req, res) => {
+    const userProfile = await profileService.getProfileById(req.body.userId);
+    const creditScoreData = await creditScoreService.getCreditScoreByUserId(req.body.userId);
+    res.status(httpStatus.OK).send({userProfile, creditScoreData})
 });
 
 module.exports = {
@@ -104,5 +121,6 @@ module.exports = {
   deleteUser,
   getUserPersonalInfo,
   updateUserPersonalInfo,
-  getMerchantInfo
+  getMerchantInfo,
+  userDetails
 };

@@ -8,5 +8,6 @@ const upload = require('../../middlewares/upload');
 const router = express.Router();
 
 router.post('/register', auth.authenticateUser, upload.uploadStore, validate(storeValidation.register), storeController.register);
+router.post('/get-merchant', auth.authenticateUser, storeController.getStore);
 
 module.exports = router;

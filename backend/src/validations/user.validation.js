@@ -50,8 +50,9 @@ const userDetails = {
 const updateUserPersonalInfo = {
   body: Joi.object().keys({
     name: Joi.string().required(),
-    email: Joi.string().required().email(),
-    mobile : Joi.number().required()
+    email: Joi.string().email(),
+    mobile : Joi.number().required(),
+    documentName : Joi.string()
   }),
 }
 
@@ -61,5 +62,6 @@ module.exports = {
   getUser,
   updateUser,
   deleteUser,
-  updateUserPersonalInfo
+  updateUserPersonalInfo,
+  userDetails
 };

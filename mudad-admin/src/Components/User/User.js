@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Row, Col, Card, Table, Modal } from "react-bootstrap";
-import { getUsers, deleteUser, userKycDetalis, kycVerified } from "../../services/user";
+import { getUsers, deleteUser, userKycDetalis, kycVerified, getUserDetails } from "../../services/user";
 import { useSelector, useDispatch } from "react-redux";
 import DataTable from "react-data-table-component";
 import { AiFillEdit } from "react-icons/ai";
@@ -15,13 +15,20 @@ export const User = () => {
   const [data, setData] = useState([]);
   const dispatch = useDispatch({});
   const [kycData, setKycData] = useState({});
+  const [popUpDetailsShow, setPopUpDetailsShow] = useState(false);
+  const [userDetailsData, setUserDetailsData] = useState({});
   const [columns, setColumns] = useState([
     {
       name: `Name`,
       cell: (row) => (
-        // <Link to={""} onClick={() => handleClick(row._id)}>
-          row.name
-        // </Link>
+        <>
+        {
+          row.isProfile == 'true' ? 
+            <Link to={""} onClick={() => handleUser(row._id)}>
+              {row.name}
+            </Link> : row.name
+        }
+        </>
       ),
     },
     { name: `Role`, selector: "role" },
@@ -83,6 +90,43 @@ export const User = () => {
       });
   };
 
+  const handleUser = (id) => {
+    setLoading(true);
+    const data = {
+      token : userInfo.token,
+      userId: id
+    }
+    console.log('1111111111 ')
+    getUserDetails(data)
+    .then(async (response) => {
+      console.log('res', response)
+      if (response.userProfile) {
+        console.log('called')
+          let data = {
+            name: response.userProfile.firstName + ' ' + response.userProfile.lastName,
+            gender: response.userProfile.gender,
+            employer: response.userProfile.employer,
+            employer_address: response.userProfile.employer_address,
+            profession : response.userProfile.profession,
+            monthly_income : response.userProfile.monthly_income,
+            creditScore : response.creditScoreData ? response.creditScoreData.credit_score : 0
+          };
+        console.log('called');
+        setPopUpDetailsShow(true);
+        setUserDetailsData(data);
+      }
+      setLoading(false);
+    })
+    .catch((error) => {
+      setLoading(false);
+      alert("Something went wrong");
+    });
+  }
+
+  const handleUserDetailsClose = () => {
+    setPopUpDetailsShow(!popUpDetailsShow);
+  }
+
   const getUsersData = () => {
     const data = {
       token: userInfo.token,
@@ -92,7 +136,7 @@ export const User = () => {
       .then(async (response) => {
         if (response.user) {
           let userList = response.user.map((userData) => {
-            console.log(userData.isEmailVerified);
+            console.log('=============',userData)
             return {
               _id: userData.id,
               name: userData.name,
@@ -100,6 +144,7 @@ export const User = () => {
               verified: userData.isEmailVerified.toString(),
               isKyc: userData.kycStatus,
               role: userData.role,
+              isProfile : userData.isProfile.toString()
             };
           });
           setData(userList);
@@ -202,6 +247,45 @@ export const User = () => {
             <button className="btn btn-danger" onClick={() => handleKycSubmit('Rejected')}>Reject</button>
             <button className="btn btn-success" onClick={() => handleKycSubmit('Verified')}>Verify</button>
         </Modal.Footer>
+      </Modal>
+      <Modal show={popUpDetailsShow} onHide={handleUserDetailsClose}>
+        <Modal.Header closeButton>
+          <b>User Details</b>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            <b>Name :</b> <span>{userDetailsData ? userDetailsData.name : ''}</span>
+          </p>
+          <hr />
+          <p>
+            <b>Gender :</b> <span>{userDetailsData ? userDetailsData.gender : ''}</span>
+          </p>
+          <hr />
+          <p>
+            <b>Employer :</b> <span>{userDetailsData ? userDetailsData.employer : ''}</span>
+          </p>
+          <hr />
+          <p>
+            <b>Employer Address :</b> <span>{userDetailsData ? userDetailsData.employer_address : ''}</span>
+          </p>
+          <hr />
+          <p>
+            <b>Profession :</b> <span>{userDetailsData ? userDetailsData.profession : ''}</span>
+          </p>
+          <hr />
+          <p>
+            <b>Monthly Income :</b> <span>{userDetailsData ? userDetailsData.monthly_income : ''}</span>
+          </p>
+          <hr />
+          <p>
+            <b>Credit Score :</b> <span>{userDetailsData ? userDetailsData.creditScore : ''}</span>
+          </p>
+          <hr />
+        </Modal.Body>
+        {/* <Modal.Footer>
+            <button className="btn btn-danger" onClick={() => handleKycSubmit('Rejected')}>Reject</button>
+            <button className="btn btn-success" onClick={() => handleKycSubmit('Verified')}>Verify</button>
+        </Modal.Footer> */}
       </Modal>
     </Row>
   );

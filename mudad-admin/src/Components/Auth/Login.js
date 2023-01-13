@@ -5,7 +5,7 @@ import './Login.css';
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {login} from '../../services/auth';
-import { addToken, logout } from '../../redux/reducers/userSlice';
+import { addToken, logout, loginData } from '../../redux/reducers/userSlice';
 import { useDispatch } from 'react-redux';
 const initialValues = {
     email: "",
@@ -36,12 +36,13 @@ export const Login = () => {
           values.role = 'admin';
           login(values)
             .then(async (response) => {
-              if(response.tokens) {
-                dispatch(addToken(response.tokens));
-                navigate("/verify-otp", {state: 'login'});  
+              console.log(response)
+              if(response.token) {
+                dispatch(loginData(response));
+                navigate("/user");  
               } else if(response.response.data.message == "Incorrect Password") {
                 errors.password = "Incorrect password"
-              } else if(response.response.data.message == "User not found") {
+              } else if(response.response.data.message == "User not found" || response.response.data.message == "Invalid email") {
                 errors.email = "Incorrect email"
               }
                 setLoading(false);

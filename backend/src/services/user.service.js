@@ -1,5 +1,6 @@
 const httpStatus = require('http-status');
-const { User } = require('../models');
+const { email } = require('../config/config');
+const { User, Document } = require('../models');
 const ApiError = require('../utils/ApiError');
 
 /**
@@ -34,7 +35,7 @@ const queryUsers = async (filter, options) => {
  * @returns {Promise<User>}
  */
 const getUserById = async (id) => {
-  let user = await User.findById(id);
+  let user = await User.findById(id).populate('profile');
   if(!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found'); 
   return user;
 };
@@ -61,12 +62,25 @@ const updateUserById = async (userId, updateBody) => {
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
-  if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+  // if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
+  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+  // }
+  let userData = {
+    name : updateBody.name,
+    // email : updateBody.email,
+    mobile : updateBody.mobile,
+    profile : null
   }
-  Object.assign(user, updateBody);
-  await user.save();
-  return user;
+  if(updateBody.documentName) {
+    let docsBody = {
+      createdBy : userId,
+      document : updateBody.documentName
+    }
+    const uploadDocs = await Document.create(docsBody);
+    userData.profile = uploadDocs._id;
+  }
+  Object.assign(user, userData);
+  return await user.save();
 };
 
 /**
@@ -84,6 +98,11 @@ const getAllUsers = async (bodyData) => {
   return user;
 };
 
+const findAllMerchant = async (id) => {
+  let merchant = await User.find({role: 'merchant', isDeleted: false});
+  return merchant;
+};
+
 module.exports = {
   createUser,
   queryUsers,
@@ -91,5 +110,6 @@ module.exports = {
   getUserByEmail,
   updateUserById,
   deleteUserById,
-  getAllUsers
+  getAllUsers,
+  findAllMerchant
 };

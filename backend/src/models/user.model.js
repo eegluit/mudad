@@ -50,6 +50,10 @@ const userSchema = mongoose.Schema(
     },
     mobile: {
       type: String
+    },
+    profile: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: 'Document'
     }
   },
   {

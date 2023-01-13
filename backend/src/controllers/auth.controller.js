@@ -17,26 +17,34 @@ const register = catchAsync(async (req, res) => {
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
-  console.log(user)
-  if(user.role == 'merchant' || user.role == 'admin') {
+  if(req.body.role) {
     if(user.role == req.body.role) {
+      if(user.role == 'admin') {
+        const token = await tokenService.generateAuthTokens(user);
+        res.status(httpStatus.OK).send({ user, token });
+      } else {
+        const otp = newOtp.generate(4, { alphabets: false, upperCase: false, specialChar: false });
+        const userId = user._id;
+        const otpRes = await otpService.generateOtp(otp, userId);
+        await emailService.sendOtpEmail(req.body.email, otpRes.otp);
+        const tokens = await tokenService.generateOtpToken(user);
+        res.status(httpStatus.OK).send({ tokens, message: 'OTP has been sent on the email' });
+      }
+    } else {
+      res.status(httpStatus.UNAUTHORIZED).send({ message: 'Invalid email' });    
+    }
+  } else {
+    if(user.role != 'user') {
+      res.status(httpStatus.UNAUTHORIZED).send({ message: 'Invalid email' });
+    } else {
       const otp = newOtp.generate(4, { alphabets: false, upperCase: false, specialChar: false });
       const userId = user._id;
       const otpRes = await otpService.generateOtp(otp, userId);
       await emailService.sendOtpEmail(req.body.email, otpRes.otp);
       const tokens = await tokenService.generateOtpToken(user);
-      res.status(httpStatus.OK).send({ tokens, message: 'OTP has been sent on the email' });
-    } else {
-      res.status(httpStatus.BAD_REQUEST).send({ message: 'You are not an merchant' });    
+      res.status(httpStatus.OK).send({ tokens, message: 'OTP has been sent on the email' });  
     }
-  } else {
-    const otp = newOtp.generate(4, { alphabets: false, upperCase: false, specialChar: false });
-    const userId = user._id;
-    const otpRes = await otpService.generateOtp(otp, userId);
-    await emailService.sendOtpEmail(req.body.email, otpRes.otp);
-    const tokens = await tokenService.generateOtpToken(user);
-    res.status(httpStatus.OK).send({ tokens, message: 'OTP has been sent on the email' });  
-  }
+  }   
 });
 
 const logout = catchAsync(async (req, res) => {

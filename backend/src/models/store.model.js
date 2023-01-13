@@ -3,6 +3,10 @@ const { toJSON } = require('./plugins');
 
 const storeSchema = mongoose.Schema(
   {
+    isDeleted : {
+      type: Boolean,
+      default : false
+    },
     userId: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: 'User',

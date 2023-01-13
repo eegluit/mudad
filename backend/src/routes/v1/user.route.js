@@ -3,15 +3,15 @@ const validate = require('../../middlewares/validate');
 const userValidation = require('../../validations/user.validation');
 const userController = require('../../controllers/user.controller');
 const auth = require('../../middlewares/auth');
-
+const upload = require('../../middlewares/upload');
 const router = express.Router();
 
 router.post('/get-users', auth.authenticateUser, validate(userValidation.getUsers),userController.getUsers);
 router.post('/delete-user', auth.authenticateUser, validate(userValidation.deleteUser), userController.deleteUser);
-// router.post('/get-user-details', auth.authenticateUser, validate(userValidation.userDetails), userController.deleteUser);
 router.get('/get-user-personal-info', auth.authenticateUser, userController.getUserPersonalInfo);
-router.post('/update-user-personal-info', auth.authenticateUser, validate(userValidation.updateUserPersonalInfo), userController.updateUserPersonalInfo);
+router.post('/update-user-personal-info', upload.uploadUserImage, auth.authenticateUser, validate(userValidation.updateUserPersonalInfo), userController.updateUserPersonalInfo);
 router.get('/get-merchant-info', auth.authenticateUser, userController.getMerchantInfo);
+router.post('/get-user-details', auth.authenticateUser, validate(userValidation.userDetails), userController.userDetails);
 
 module.exports = router;
 

@@ -8,3 +8,4 @@ module.exports.CreditScore = require('./credit_score');
 module.exports.Kyc = require('./kyc.model');
 module.exports.Document = require('./document.model');
 module.exports.Store = require('./store.model');
+module.exports.Card = require('./card.model');

@@ -45,7 +45,7 @@ const readStatementPdf = async (req) => {
 };
 
 const getCreditScoreByUserId = async (userId) => {
-  const isCreditScore = await CreditScore.findOne({ userId });
+  const isCreditScore = await CreditScore.findOne({ userId }).lean();
   // if(!isCreditScore) throw new ApiError(httpStatus.NOT_FOUND, 'Credit score not found');
   return isCreditScore;
 };

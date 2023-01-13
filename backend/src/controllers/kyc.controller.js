@@ -34,8 +34,8 @@ const getKycDetails = catchAsync(async (req, res) => {
   const kyc = {
     id: kycData._id,
     idType : kycData.kycIdType,
-    kycDoc : kycData.kycDoc ? `http://13.232.39.141:8080/static/docs/kyc/${kycData.kycDoc.document}` : null,
-    selfie : kycData.selfie ? `http://13.232.39.141:8080/static/docs/kyc/${kycData.selfie.document}` : null
+    kycDoc : kycData.kycDoc ? `https://admin.mudad.space/static/docs/kyc/${kycData.kycDoc.document}` : null,
+    selfie : kycData.selfie ? `https://admin.mudad.space/static/docs/kyc/${kycData.selfie.document}` : null
   }
   res.status(httpStatus.OK).send({response : kyc})
 });

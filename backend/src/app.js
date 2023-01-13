@@ -47,8 +47,22 @@ app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
 
 // limit repeated failed requests to auth endpoints
+// if (config.env === 'production') {
+//   app.use('/v1/auth', authLimiter);
+// }
+
 if (config.env === 'production') {
-  app.use('/v1/auth', authLimiter);
+  // app.get('*', function (request, response) {
+  //   response.sendFile(path.resolve(__dirname, '../../front/build', 'index.html'));
+  // });
+  app.use(express.static(path.join(__dirname, '../../mudad-admin/build')));
+  // app.use('/static', express.static(path.join(__dirname, '../public')));
+
+  app.get('/*', (request, response) => {
+    response.sendFile(path.join(__dirname, '../../mudad-admin/build/index.html'));
+  });
+
+  // app.use('/v1/auth', authLimiter);
 }
 
 app.use('/static', express.static(path.join(__dirname, '../public')));

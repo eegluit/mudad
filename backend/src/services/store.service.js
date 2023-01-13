@@ -23,11 +23,17 @@ const register = async (req) => {
 };
 
 const findByUserId = async (userId) => {
-    const storeData = await Store.findOne({userId: userId});
+    const storeData = await Store.findOne({userId: userId}).populate('logo').lean();
+    return storeData;
+}
+
+const findAllStore = async () => {
+    const storeData = await Store.find({isDeleted : false}).populate('logo');
     return storeData;
 }
 
 module.exports = {
   register,
-  findByUserId
+  findByUserId,
+  findAllStore
 };
