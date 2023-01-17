@@ -10,12 +10,8 @@ const getDashboard = catchAsync(async (req, res) => {
   console.log(creditScoreData)
   const isKyc = await kycService.findByUserId(req.user);
 
-  if(Object.keys(creditScoreData).length == 0 ) {
-    console.log('called')
-    throw new ApiError(httpStatus.NOT_FOUND, 'Available credit is not found');
-  }
   let availableLimitData = {
-   availableLimit :  creditScoreData.available_credit,
+   availableLimit :  creditScoreData ? creditScoreData.available_credit : 0,
    isKyc : isKyc ? isKyc.selfie ? true : false : false 
   }
   res.status(httpStatus.OK).send(availableLimitData);

@@ -6,27 +6,31 @@ const ApiError = require('../utils/ApiError');
 
 const readStatementPdf = async (req) => {
   try {
-    console.log(req.file)
     const pdfRead = `./public/docs/statement/${req.file.name}`;
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     const readFileSync = fs.readFileSync(pdfRead);
     try {
       const pdfExtract = await pdfParse(readFileSync);
+      let creditAvailable = [1200, 1500, 1700, 2500];
+      let available_credit = creditAvailable[0];
       let creditData = 700;
       if (pdfExtract.text.search('Mr. Ishan Pachauri')) {
         creditData = 710;
+        available_credit = creditAvailable[1]
       } else if (pdfExtract.text.search('Mr. Ankit Kumar Gupta')) {
         creditData = 780;
+        available_credit = creditAvailable[2]
       } else if (pdfExtract.text.search('Mr. Ujjwal Sharma')) {
         creditData = 850;
+        available_credit = creditAvailable[3]
       }
       const creditScoreData = {
         userId: req.user,
         credit_score: creditData,
+        available_credit
       };
       // eslint-disable-next-line no-use-before-define
       const isCreditExists = await getCreditScoreByUserId(req.user);
-      console.log('isCreditExists =========',isCreditExists)
       if (isCreditExists) {
         // eslint-disable-next-line no-use-before-define
         await updateCreditScoreByUserId(req.user, creditScoreData);
@@ -35,7 +39,6 @@ const readStatementPdf = async (req) => {
       await CreditScore.create(creditScoreData);
       return { message: 'Created' };
     } catch (error) {
-      console.log('11111', error)
       throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong');
     }
   } catch (err) {

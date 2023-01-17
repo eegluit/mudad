@@ -86,6 +86,7 @@ const verifyEmail = catchAsync(async (req, res) => {
 
 const verifyOtp = catchAsync(async (req, res) => {
     const userData = await userService.getUserById(req.user);
+    console.log(userData)
     const otp = await otpService.verifyOtp(req.body.otp, userData);
     const token = await tokenService.generateAuthTokens(userData);
     const isKyc = await kycService.findByUserId(req.user);

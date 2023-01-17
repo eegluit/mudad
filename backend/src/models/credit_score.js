@@ -12,6 +12,9 @@ const creditScoreSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    available_credit: {
+      type: Number
+    }
   },
   {
     timestamps: true,

@@ -62,24 +62,7 @@ const updateUserById = async (userId, updateBody) => {
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
-  // if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
-  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
-  // }
-  let userData = {
-    name : updateBody.name,
-    // email : updateBody.email,
-    mobile : updateBody.mobile,
-    profile : null
-  }
-  if(updateBody.documentName) {
-    let docsBody = {
-      createdBy : userId,
-      document : updateBody.documentName
-    }
-    const uploadDocs = await Document.create(docsBody);
-    userData.profile = uploadDocs._id;
-  }
-  Object.assign(user, userData);
+  Object.assign(user, updateBody);
   return await user.save();
 };
 
@@ -103,6 +86,33 @@ const findAllMerchant = async (id) => {
   return merchant;
 };
 
+const updateUserProfileById = async (userId, updateBody) => {
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+  // if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
+  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+  // }
+  let userData = {
+    name : updateBody.name,
+    // email : updateBody.email,
+    mobile : updateBody.mobile,
+    profile : null
+  }
+  if(updateBody.documentName) {
+    let docsBody = {
+      createdBy : userId,
+      document : updateBody.documentName
+    }
+    const uploadDocs = await Document.create(docsBody);
+    userData.profile = uploadDocs._id;
+  }
+  Object.assign(user, userData);
+  return await user.save();
+};
+
+
 module.exports = {
   createUser,
   queryUsers,
@@ -111,5 +121,6 @@ module.exports = {
   updateUserById,
   deleteUserById,
   getAllUsers,
-  findAllMerchant
+  findAllMerchant,
+  updateUserProfileById
 };
